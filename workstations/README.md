@@ -56,10 +56,13 @@ node scripts/import-workstations.mjs /path/to/downloads
 
 Only new attachments require originals. Repeated imports are idempotent.
 
-Photos are auto-oriented, stripped of metadata, and encoded as WebP at up to
-1920 pixels. Gallery previews are at most 640 pixels and load lazily. Full photos
-load when opened. Videos use VP9/Opus WebM at up to 1280 pixels, with a WebP
-poster and `preload="none"` so playback is requested by the visitor.
+Photos are auto-oriented, stripped of metadata, and centre-cropped to a
+uniform landscape 4:3 canvas: 1920×1440 WebP (quality 80) for full photos,
+640×480 WebP (quality 72) for gallery previews. Every image — grid thumbnail
+and lightbox — shows the same cropped frame. Gallery previews load lazily;
+full photos load when opened. Videos use VP9/Opus WebM at up to 1280 pixels,
+with a 640×480 WebP poster and `preload="none"` so playback is requested by
+the visitor.
 
 Use `npm run build:da` to refresh the Danish static preview; `npm run build`
 updates the English build.

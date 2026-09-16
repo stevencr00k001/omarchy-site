@@ -29,7 +29,7 @@ test('workstation imports escape titles, deduplicate media, and repeat without o
       '<main></main>',
     )
     const original = await sharp({
-      create: { width: 80, height: 60, channels: 3, background: 'red' },
+      create: { width: 2000, height: 1500, channels: 3, background: 'red' },
     })
       .png()
       .toBuffer()
@@ -61,9 +61,27 @@ test('workstation imports escape titles, deduplicate media, and repeat without o
       path.join(directory, 'scripts/data/workstations-media.json'),
       'utf8',
     )
-    assert.equal(JSON.parse(metadata).length, 1)
+    const parsed = JSON.parse(metadata)
+    assert.equal(parsed.length, 1)
     assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/)
     assert.doesNotMatch(html, /<figcaption|<img src=x/)
+    // Output dimensions must be exactly 640×480 (preview attrs).
+    assert.equal(parsed[0].width, 640)
+    assert.equal(parsed[0].height, 480)
+    // Full-size file must be 1920×1440 WebP.
+    const fullMeta = await sharp(
+      path.join(directory, parsed[0].file),
+    ).metadata()
+    assert.equal(fullMeta.width, 1920)
+    assert.equal(fullMeta.height, 1440)
+    assert.equal(fullMeta.format, 'webp')
+    // Preview must be 640×480 WebP.
+    const previewMeta = await sharp(
+      path.join(directory, parsed[0].preview),
+    ).metadata()
+    assert.equal(previewMeta.width, 640)
+    assert.equal(previewMeta.height, 480)
+    assert.equal(previewMeta.format, 'webp')
     const exclusions = JSON.parse(
       await readFile(
         path.join(directory, 'scripts/data/workstations-excluded.json'),
